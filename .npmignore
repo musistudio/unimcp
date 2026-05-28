@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Local environment
+.env
+.env.*
+.DS_Store
+
+# Source and build configuration
+src/
+tsconfig.json
+tsconfig.*.json
+esbuild.config.mjs
+*.tsbuildinfo
+
+# Tests and coverage
+test/
+tests/
+__tests__/
+coverage/
+.nyc_output/
+*.test.*
+*.spec.*
+
+# Logs and temporary files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+tmp/
+temp/
+.cache/
+
+# VCS and editor metadata
+.git/
+.github/
+.gitignore
+.vscode/
+.idea/
