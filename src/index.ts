@@ -7,7 +7,7 @@ import { formatSearchResults, webSearch, webSearchInputSchema } from "./search.j
 
 const server = new McpServer({
   name: "unimcp",
-  version: "1.0.0"
+  version: "1.1.0"
 });
 
 server.registerTool(
@@ -35,7 +35,7 @@ server.registerTool(
   {
     title: "Web Search",
     description:
-      "通用网络搜索工具。用 prompt 描述搜索需求，支持 Brave、Bing、Google CSE、Serper、SerpAPI、Tavily 等主流搜索 API。",
+      "通用网络搜索工具。用 prompt 描述搜索需求，支持 Brave、Bing、Google CSE、Serper、SerpAPI、Tavily、Exa 等主流搜索 API。",
     inputSchema: webSearchInputSchema
   },
   async (input) =>

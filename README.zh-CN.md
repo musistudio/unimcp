@@ -7,7 +7,7 @@
 ## 功能
 
 - `vision_understand`：通用图片理解工具，支持 OCR、截图分析、图表解读、UI 对比、错误诊断等多图任务。
-- `web_search`：通用网络搜索工具，支持 Brave、Bing、Google CSE、Serper、SerpAPI、Tavily。
+- `web_search`：通用网络搜索工具，支持 Brave、Bing、Google CSE、Serper、SerpAPI、Tavily、Exa。
 - 视觉模型使用 OpenAI 兼容的 `chat/completions` 接口，可配置自定义 base URL、模型和 API Key。
 - 搜索服务支持自动选择已配置的 provider，也可以通过环境变量固定指定。
 
@@ -145,7 +145,7 @@ npx @musistudio/unimcp
 
 | 变量 | 必填 | 默认值 | 说明 |
 | --- | --- | --- | --- |
-| `SEARCH_PROVIDER` | 否 | `auto` | 搜索 provider。可选值：`auto`、`brave`、`bing`、`google_cse`、`serper`、`serpapi`、`tavily`。`auto` 会按支持顺序选择第一个已配置 API Key 的 provider。 |
+| `SEARCH_PROVIDER` | 否 | `auto` | 搜索 provider。可选值：`auto`、`brave`、`bing`、`google_cse`、`serper`、`serpapi`、`tavily`、`exa`。`auto` 会按支持顺序选择第一个已配置 API Key 的 provider。 |
 | `SEARCH_TIMEOUT_MS` | 否 | `30000` | 搜索请求超时时间，单位毫秒。 |
 | `SEARCH_RESULT_COUNT` | 否 | `5` | 默认搜索结果数量，会被限制在 `1` 到 `20`。 |
 | `BRAVE_SEARCH_API_KEY` | 条件必填 | 无 | Brave Search API Key。使用 `brave` 时必填。 |
@@ -155,12 +155,14 @@ npx @musistudio/unimcp
 | `SERPER_API_KEY` | 条件必填 | 无 | Serper API Key。使用 `serper` 时必填。 |
 | `SERPAPI_API_KEY` | 条件必填 | 无 | SerpAPI API Key。使用 `serpapi` 时必填。 |
 | `TAVILY_API_KEY` | 条件必填 | 无 | Tavily API Key。使用 `tavily` 时必填。 |
+| `EXA_API_KEY` | 条件必填 | 无 | Exa API Key。使用 `exa` 时必填。 |
 | `BRAVE_SEARCH_ENDPOINT` | 否 | `https://api.search.brave.com/res/v1/web/search` | Brave 自定义搜索端点。 |
 | `BING_SEARCH_ENDPOINT` | 否 | `https://api.bing.microsoft.com/v7.0/search` | Bing 自定义搜索端点。 |
 | `GOOGLE_SEARCH_ENDPOINT` | 否 | `https://www.googleapis.com/customsearch/v1` | Google CSE 自定义搜索端点。 |
 | `SERPER_SEARCH_ENDPOINT` | 否 | `https://google.serper.dev/search` | Serper 自定义搜索端点。 |
 | `SERPAPI_SEARCH_ENDPOINT` | 否 | `https://serpapi.com/search.json` | SerpAPI 自定义搜索端点。 |
 | `TAVILY_SEARCH_ENDPOINT` | 否 | `https://api.tavily.com/search` | Tavily 自定义搜索端点。 |
+| `EXA_SEARCH_ENDPOINT` | 否 | `https://api.exa.ai/search` | Exa 自定义搜索端点。 |
 
 ## 搜索 provider 配置示例
 
@@ -183,17 +185,27 @@ Google CSE：
 }
 ```
 
+Exa：
+
+```json
+{
+  "SEARCH_PROVIDER": "exa",
+  "EXA_API_KEY": "..."
+}
+```
+
 自动选择 provider：
 
 ```json
 {
   "SEARCH_PROVIDER": "auto",
   "BRAVE_SEARCH_API_KEY": "...",
-  "TAVILY_API_KEY": "..."
+  "TAVILY_API_KEY": "...",
+  "EXA_API_KEY": "..."
 }
 ```
 
-`auto` 的选择顺序为 `brave`、`bing`、`google_cse`、`serper`、`serpapi`、`tavily`。
+`auto` 的选择顺序为 `brave`、`bing`、`google_cse`、`serper`、`serpapi`、`tavily`、`exa`。
 
 ## 本地开发
 

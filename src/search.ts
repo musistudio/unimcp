@@ -9,7 +9,8 @@ export const searchProviderSchema = z.enum([
   "google_cse",
   "serper",
   "serpapi",
-  "tavily"
+  "tavily",
+  "exa"
 ]);
 
 export const webSearchInputSchema = z.object({
@@ -51,7 +52,8 @@ const providerOrder: ConcreteSearchProvider[] = [
   "google_cse",
   "serper",
   "serpapi",
-  "tavily"
+  "tavily",
+  "exa"
 ];
 
 export async function webSearch(input: WebSearchInput): Promise<SearchResponse> {
@@ -70,6 +72,8 @@ export async function webSearch(input: WebSearchInput): Promise<SearchResponse> 
       return searchSerpApi(input, provider);
     case "tavily":
       return searchTavily(input, provider);
+    case "exa":
+      return searchExa(input, provider);
   }
 
   throw new Error(`Unsupported search provider: ${provider satisfies never}`);
@@ -109,7 +113,7 @@ function chooseProvider(): ConcreteSearchProvider {
   const provider = providerOrder.find(hasProviderConfig);
   if (!provider) {
     throw new Error(
-      "No search provider configured. Set SEARCH_PROVIDER and its API key, such as BRAVE_SEARCH_API_KEY, BING_SEARCH_API_KEY, GOOGLE_SEARCH_API_KEY + GOOGLE_SEARCH_CX, SERPER_API_KEY, SERPAPI_API_KEY, or TAVILY_API_KEY."
+      "No search provider configured. Set SEARCH_PROVIDER and its API key, such as BRAVE_SEARCH_API_KEY, BING_SEARCH_API_KEY, GOOGLE_SEARCH_API_KEY + GOOGLE_SEARCH_CX, SERPER_API_KEY, SERPAPI_API_KEY, TAVILY_API_KEY, or EXA_API_KEY."
     );
   }
 
@@ -141,6 +145,8 @@ function hasProviderConfig(provider: ConcreteSearchProvider): boolean {
       return Boolean(env("SERPAPI_API_KEY"));
     case "tavily":
       return Boolean(env("TAVILY_API_KEY"));
+    case "exa":
+      return Boolean(env("EXA_API_KEY"));
   }
 }
 
@@ -310,6 +316,44 @@ async function searchTavily(input: WebSearchInput, provider: ConcreteSearchProvi
   return withOptionalRaw({ provider, prompt: input.prompt, results }, raw, input.includeRaw);
 }
 
+async function searchExa(input: WebSearchInput, provider: ConcreteSearchProvider): Promise<SearchResponse> {
+  const apiKey = requireApiKey(provider, "EXA_API_KEY");
+  const raw = await fetchJson(env("EXA_SEARCH_ENDPOINT") ?? "https://api.exa.ai/search", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-api-key": apiKey
+    },
+    body: JSON.stringify(compactRecord({
+      query: input.prompt,
+      numResults: resultCount(input),
+      type: "auto",
+      includeDomains: input.includeDomains,
+      excludeDomains: input.excludeDomains,
+      userLocation: exaUserLocation(input.country),
+      startPublishedDate: freshnessToIsoStart(input.freshness),
+      moderation: input.safeSearch ? input.safeSearch !== "off" : undefined,
+      contents: {
+        highlights: true,
+        text: {
+          maxCharacters: 1000
+        }
+      }
+    }))
+  }, input);
+
+  const results = array(readProperty(raw, "results")).map((item) => ({
+    title: stringValue(readProperty(item, "title"), "Untitled"),
+    url: stringValue(readProperty(item, "url"), ""),
+    snippet: exaSnippet(item),
+    source: optionalString(readProperty(item, "author")),
+    publishedAt: optionalString(readProperty(item, "publishedDate")),
+    score: numberValue(readProperty(item, "score"))
+  })).filter(hasUrl);
+
+  return withOptionalRaw({ provider, prompt: input.prompt, results }, raw, input.includeRaw);
+}
+
 function requireApiKey(provider: ConcreteSearchProvider, envName: string): string {
   const apiKey = env(envName);
   if (!apiKey) {
@@ -363,6 +407,26 @@ function freshnessToGoogleTbs(value: "day" | "week" | "month" | undefined): stri
   }
 
   return value === "day" ? "qdr:d" : value === "week" ? "qdr:w" : "qdr:m";
+}
+
+function freshnessToIsoStart(value: "day" | "week" | "month" | undefined): string | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  const days = value === "day" ? 1 : value === "week" ? 7 : 30;
+  return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+}
+
+function exaSnippet(item: unknown): string | undefined {
+  const highlights = array(readProperty(item, "highlights"))
+    .map((highlight) => optionalString(highlight))
+    .filter((highlight): highlight is string => Boolean(highlight));
+  return highlights[0] ?? optionalString(readProperty(item, "text")) ?? optionalString(readProperty(item, "summary"));
+}
+
+function exaUserLocation(country: string | undefined): string | undefined {
+  return country && /^[A-Za-z]{2}$/.test(country) ? country.toUpperCase() : undefined;
 }
 
 function withOptionalRaw(

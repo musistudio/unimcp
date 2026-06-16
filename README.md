@@ -7,7 +7,7 @@ English | [Simplified Chinese](README.zh-CN.md)
 ## Features
 
 - `vision_understand`: generic image understanding for OCR, screenshot analysis, chart reading, UI comparison, error diagnosis, and other multi-image tasks.
-- `web_search`: generic web search with Brave, Bing, Google CSE, Serper, SerpAPI, and Tavily.
+- `web_search`: generic web search with Brave, Bing, Google CSE, Serper, SerpAPI, Tavily, and Exa.
 - Vision calls use an OpenAI-compatible `chat/completions` endpoint, with configurable base URL, model, and API key.
 - Search can automatically select the first configured provider, or use a provider explicitly selected by environment variable.
 
@@ -145,7 +145,7 @@ Optional call parameters:
 
 | Variable | Required | Default | Description |
 | --- | --- | --- | --- |
-| `SEARCH_PROVIDER` | No | `auto` | Search provider. Supported values: `auto`, `brave`, `bing`, `google_cse`, `serper`, `serpapi`, `tavily`. `auto` selects the first provider with a valid API key in the supported order. |
+| `SEARCH_PROVIDER` | No | `auto` | Search provider. Supported values: `auto`, `brave`, `bing`, `google_cse`, `serper`, `serpapi`, `tavily`, `exa`. `auto` selects the first provider with a valid API key in the supported order. |
 | `SEARCH_TIMEOUT_MS` | No | `30000` | Search request timeout in milliseconds. |
 | `SEARCH_RESULT_COUNT` | No | `5` | Default result count, clamped from `1` to `20`. |
 | `BRAVE_SEARCH_API_KEY` | Conditional | None | Brave Search API key. Required for `brave`. |
@@ -155,12 +155,14 @@ Optional call parameters:
 | `SERPER_API_KEY` | Conditional | None | Serper API key. Required for `serper`. |
 | `SERPAPI_API_KEY` | Conditional | None | SerpAPI API key. Required for `serpapi`. |
 | `TAVILY_API_KEY` | Conditional | None | Tavily API key. Required for `tavily`. |
+| `EXA_API_KEY` | Conditional | None | Exa API key. Required for `exa`. |
 | `BRAVE_SEARCH_ENDPOINT` | No | `https://api.search.brave.com/res/v1/web/search` | Custom Brave search endpoint. |
 | `BING_SEARCH_ENDPOINT` | No | `https://api.bing.microsoft.com/v7.0/search` | Custom Bing search endpoint. |
 | `GOOGLE_SEARCH_ENDPOINT` | No | `https://www.googleapis.com/customsearch/v1` | Custom Google CSE endpoint. |
 | `SERPER_SEARCH_ENDPOINT` | No | `https://google.serper.dev/search` | Custom Serper endpoint. |
 | `SERPAPI_SEARCH_ENDPOINT` | No | `https://serpapi.com/search.json` | Custom SerpAPI endpoint. |
 | `TAVILY_SEARCH_ENDPOINT` | No | `https://api.tavily.com/search` | Custom Tavily endpoint. |
+| `EXA_SEARCH_ENDPOINT` | No | `https://api.exa.ai/search` | Custom Exa endpoint. |
 
 ## Search Provider Examples
 
@@ -183,17 +185,27 @@ Google CSE:
 }
 ```
 
+Exa:
+
+```json
+{
+  "SEARCH_PROVIDER": "exa",
+  "EXA_API_KEY": "..."
+}
+```
+
 Automatic provider selection:
 
 ```json
 {
   "SEARCH_PROVIDER": "auto",
   "BRAVE_SEARCH_API_KEY": "...",
-  "TAVILY_API_KEY": "..."
+  "TAVILY_API_KEY": "...",
+  "EXA_API_KEY": "..."
 }
 ```
 
-The `auto` provider order is `brave`, `bing`, `google_cse`, `serper`, `serpapi`, `tavily`.
+The `auto` provider order is `brave`, `bing`, `google_cse`, `serper`, `serpapi`, `tavily`, `exa`.
 
 ## Local Development
 
